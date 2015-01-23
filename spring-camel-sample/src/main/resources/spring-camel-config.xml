@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+   
+    <beans profile="test">
+    <!-- AWS Config for SQS -->
+    <bean name="sqsClient" class="com.amazonaws.services.sqs.AmazonSQSAsyncClient">
+        <constructor-arg>
+            <bean class="com.amazonaws.auth.BasicAWSCredentials">
+                <constructor-arg value="Iamaccesskey"/>
+                <constructor-arg value="itissecret"/>
+            </bean>
+        </constructor-arg>
+   	</bean> 
+    <!-- Endpoint Setting ???-->
+	<bean id="producerQueueEndpoint" class="java.lang.String">
+			<description>Producer Queue Endpoint</description>
+			<constructor-arg value="seda:producerMessageChannel"/>
+	</bean>
+	<bean id="consumerQueueEndpoint" class="java.lang.String">
+			<description>Consumer Queue Endpoint</description>
+			<constructor-arg value="seda:consumerMessageChannel"/>
+	</bean>
+	
+    </beans>
+    
+    <beans profile="staging">
+    <!-- AWS Config for SQS -->
+    <bean name="sqsClient" class="com.amazonaws.services.sqs.AmazonSQSAsyncClient">
+        <constructor-arg>
+            <bean class="com.amazonaws.auth.BasicAWSCredentials">
+                <constructor-arg value="#{systemEnvironment['AWS_ACCESS_KEY_ID']}"/>
+                <constructor-arg value="#{systemEnvironment['AWS_SECRET_ACCESS_KEY']}"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+	
+    </beans>
+   	<!-- test profile setting --> 
+    <beans profile="staging">
+
+    <!-- Endpoint Setting -->
+	<bean id="producerQueueEndpoint" class="java.lang.String">
+			<description>Producer Queue Endpoint</description>
+			<constructor-arg value="aws-sqs://demo?amazonSQSClient=#sqsClient&amp;amazonSQSEndpoint=http://sqs.us-east-1.amazonaws.com"/>
+	</bean>
+	<bean id="consumerQueueEndpoint" class="java.lang.String">
+			<description>Consumer Queue Endpoint</description>
+			<constructor-arg value="aws-sqs://demo?amazonSQSClient=#sqsClient&amp;visibilityTimeout=300&amp;deleteAfterRead=true&amp;amazonSQSEndpoint=http://sqs.us-east-1.amazonaws.com"/>
+	</bean>
+	
+	<!-- Camel Builder -->
+    <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
+    	<routeBuilder ref="producerRouteBuilder"/>
+    	<!-- <routeBuilder ref="consumerRouteBuilder"/> -->
+    </camelContext>
+    
+    </beans>
+	
+</beans>
