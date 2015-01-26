@@ -12,7 +12,7 @@
 	<!-- Active profile -->
 	<context-param>
 		<param-name>spring.profiles.active</param-name>
-		<param-value>staging</param-value>
+		<param-value>test</param-value>
 	</context-param>
 		
 	<!-- Creates the Spring Container shared by all Servlets and Filters -->

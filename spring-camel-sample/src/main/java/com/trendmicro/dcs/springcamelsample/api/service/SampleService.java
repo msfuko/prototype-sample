@@ -36,11 +36,15 @@ public class SampleService {
 
 	/**
 	 * Example of sending message via message gateway
-	 * @return message string
+	 * @return message string if success, null if exception happens
 	 */
 	public String sendMessage() {
 		Message message = this.newSampleMessage();
-		sampleGateway.sendMessage(message);
-		return message.toString();
+		try {
+			sampleGateway.sendMessage(message);
+			return message.toString();
+		} catch (Exception ex) {
+			return null;
+		}
 	}
 }

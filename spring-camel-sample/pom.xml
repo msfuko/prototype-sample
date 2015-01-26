@@ -9,11 +9,13 @@
 	<version>1.0.0-BUILD-SNAPSHOT</version>
 	<properties>
 		<java-version>1.6</java-version>
-		<org.springframework-version>3.1.1.RELEASE</org.springframework-version>
+		<org.springframework-version>3.2.3.RELEASE</org.springframework-version>
 		<org.aspectj-version>1.6.10</org.aspectj-version>
 		<org.slf4j-version>1.6.6</org.slf4j-version>
 		<camel-version>2.14.1</camel-version>
 		<jackson-version>1.9.13</jackson-version>
+		<junit-version>4.11</junit-version>
+		<log4j-version>1.2.17</log4j-version>
 	</properties>
 	<dependencies>
 		<!-- Spring -->
@@ -63,7 +65,7 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.15</version>
+			<version>${log4j-version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.mail</groupId>
@@ -115,7 +117,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.7</version>
+			<version>${junit-version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -130,7 +132,43 @@
 			<version>1.10.19</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-test</artifactId>
+			<version>${camel-version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-test-spring3</artifactId>
+			<version>${camel-version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!--  
+    	<dependency>
+        	<groupId>org.springframework</groupId>
+        	<artifactId>spring-beans</artifactId>
+        	<version>${org.springframework-version}</version>
+        	<scope>test</scope>
+    	</dependency>
 
+    	<dependency>
+        	<groupId>org.springframework</groupId>
+        	<artifactId>spring-core</artifactId>
+        	<version>${org.springframework-version}</version>
+        	<scope>test</scope>
+    	</dependency>
+		
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-spring-javaconfig</artifactId>
+			<version>${camel-version}</version>
+			<scope>test</scope>
+		</dependency>
+		-->
+		
 		<!-- Apache Camel -->
 		<dependency>
 			<groupId>org.apache.camel</groupId>
@@ -140,11 +178,6 @@
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-spring</artifactId>
-			<version>${camel-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-test</artifactId>
 			<version>${camel-version}</version>
 		</dependency>
 		<dependency>
