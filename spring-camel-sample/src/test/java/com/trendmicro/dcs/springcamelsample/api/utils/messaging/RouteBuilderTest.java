@@ -5,12 +5,14 @@ import static org.junit.Assert.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.After;
 import org.junit.Before;
@@ -21,6 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.trendmicro.dcs.springcamelsample.api.entity.ContentMessage;
 import com.trendmicro.dcs.springcamelsample.api.entity.Message;
 import com.trendmicro.dcs.springcamelsample.api.utils.messaging.routes.ProducerRouteBuilder;
 
@@ -35,13 +38,13 @@ public class RouteBuilderTest extends CamelTestSupport{
 	 @Produce(uri = "seda:outboundMessageChannel")
 	 protected ProducerTemplate template;
 	 
-	 SampleMessageGateway messageGateway = new SampleMessageGateway();
+	 MessageGatewayImpl messageGateway = new MessageGatewayImpl();
 	 
 	 //@Autowired
 	 //ProducerRouteBuilder routeBuilder;
 	 
 	 private Message getTestMessage() {
-			Message message = new Message();
+			ContentMessage message = new ContentMessage();
 			message.setTicketNumber("CMDEV-256");
 			message.setDescription("Please go smoothly");
 			Map<String, String> misc = new HashMap<String, String>();
@@ -63,7 +66,7 @@ public class RouteBuilderTest extends CamelTestSupport{
 	 @Test
 	 public void testSendNotMatchingMessage() throws Exception {
 	     resultEndpoint.expectedMessageCount(1);
-	 
+	     
 	     template.sendBody(this.getTestMessage().toString());
 	 
 	     resultEndpoint.assertIsSatisfied();

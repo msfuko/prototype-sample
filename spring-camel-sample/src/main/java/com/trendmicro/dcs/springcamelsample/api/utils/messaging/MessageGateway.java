@@ -10,20 +10,21 @@ public interface MessageGateway {
 	 * Sending one message
 	 * @param message
 	 */
-	void sendMessage(Message message);
+	//<T extends Message> void send(T message);
+	void send(Message message);
 	
 	/**
 	 * Sending messages
 	 * @param messages
 	 */
-	void sendMessage(Collection<Message> messages);
+	void send(Collection<Message> messages);
 
 	/**
 	 * Receive message
 	 * @param message
 	 * @return message
 	 */
-	Message receiveMessage(Message message);
+	Message receive(Message message);
 	
 	//TODO - void deleteMessage()
 	

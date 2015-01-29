@@ -10,8 +10,10 @@ public class Message {
 	private String ticketNumber;
 	
 	private String description;
-	
-	private Map<String, String> misc;
+
+	public String getClassName() {
+		return this.getClass().getSimpleName();
+	}
 	
 	public String getTicketNumber() {
 		return ticketNumber;
@@ -24,12 +26,6 @@ public class Message {
 	}
 	public void setDescription(String description) {
 		this.description = description;
-	}
-	public Map<String, String> getMisc() {
-		return misc;
-	}
-	public void setMisc(Map<String, String> misc) {
-		this.misc = misc;
 	}
 	
 	@Override
