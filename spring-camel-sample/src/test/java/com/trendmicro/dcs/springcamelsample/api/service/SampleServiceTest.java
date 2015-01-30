@@ -16,8 +16,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.trendmicro.dcs.springcamelsample.api.entity.ContentMessage;
 import com.trendmicro.dcs.springcamelsample.api.entity.Message;
-import com.trendmicro.dcs.springcamelsample.api.utils.messaging.SampleMessageGateway;
+import com.trendmicro.dcs.springcamelsample.api.utils.messaging.MessageGatewayImpl;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/spring/root-context.xml")
 @ActiveProfiles("test")
@@ -27,7 +28,7 @@ public class SampleServiceTest {
 	private SampleService sampleService;
 	
 	@Mock
-	private SampleMessageGateway sampleGateway;
+	private MessageGatewayImpl sampleGateway;
 	
 	@Before
 	public void setUp() throws Exception {
@@ -40,7 +41,7 @@ public class SampleServiceTest {
 
 	@Test
 	public void testSendMessage() {
-		Message message = new Message();
+		ContentMessage message = new ContentMessage();
 		message.setTicketNumber("CMDEV-256");
 		message.setDescription("Please go smoothly");
 		Map<String, String> misc = new HashMap<String, String>();

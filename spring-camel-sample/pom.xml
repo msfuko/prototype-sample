@@ -16,6 +16,8 @@
 		<jackson-version>1.9.13</jackson-version>
 		<junit-version>4.11</junit-version>
 		<log4j-version>1.2.17</log4j-version>
+		<commonsio-version>2.4</commonsio-version>
+		<common-lang-version>2.6</common-lang-version>
 	</properties>
 	<dependencies>
 		<!-- Spring -->
@@ -190,6 +192,19 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>${jackson-version}</version>
 		</dependency>
+		
+		<!-- utils -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commonsio-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${common-lang-version}</version>
+		</dependency>
+		
 	</dependencies>
     <build>
     	<testResources>

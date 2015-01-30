@@ -6,7 +6,7 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
-import com.trendmicro.dcs.springcamelsample.api.utils.messaging.SampleMessageGateway;
+import com.trendmicro.dcs.springcamelsample.api.utils.messaging.MessageGatewayImpl;
 
 @Component
 public class ConsumerRouteBuilder extends RouteBuilder {
@@ -24,7 +24,7 @@ public class ConsumerRouteBuilder extends RouteBuilder {
 		.routeId("recv-sqs")
 		.log(LoggingLevel.INFO, "Start to receive message")
 		.errorHandler(deadLetterChannel("log:failedLetter"))
-		.bean(SampleMessageGateway.class, "receiveMessage");
+		.bean(MessageGatewayImpl.class, "receiveMessage");
 	}
 	
 }
