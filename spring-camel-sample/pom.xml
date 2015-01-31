@@ -9,7 +9,7 @@
 	<version>1.0.0-BUILD-SNAPSHOT</version>
 	<properties>
 		<java-version>1.6</java-version>
-		<org.springframework-version>3.2.3.RELEASE</org.springframework-version>
+		<org.springframework-version>4.1.4.RELEASE</org.springframework-version>
 		<org.aspectj-version>1.6.10</org.aspectj-version>
 		<org.slf4j-version>1.6.6</org.slf4j-version>
 		<camel-version>2.14.1</camel-version>
@@ -18,6 +18,8 @@
 		<log4j-version>1.2.17</log4j-version>
 		<commonsio-version>2.4</commonsio-version>
 		<common-lang-version>2.6</common-lang-version>
+		<amazon-sqs-java-messaging-lib-version>1.0.0</amazon-sqs-java-messaging-lib-version>
+		<org.apache.activemq-version>5.10.1</org.apache.activemq-version>
 	</properties>
 	<dependencies>
 		<!-- Spring -->
@@ -38,6 +40,11 @@
 			<artifactId>spring-webmvc</artifactId>
 			<version>${org.springframework-version}</version>
 		</dependency>
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jms</artifactId>
+            <version>${org.springframework-version}</version>
+        </dependency>
 				
 		<!-- AspectJ -->
 		<dependency>
@@ -188,6 +195,11 @@
 			<version>${camel-version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-jms</artifactId>
+			<version>${camel-version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>${jackson-version}</version>
@@ -203,6 +215,21 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>${common-lang-version}</version>
+		</dependency>
+		
+		<!-- AWS SQS for JMS -->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>amazon-sqs-java-messaging-lib</artifactId>
+			<version>${amazon-sqs-java-messaging-lib-version}</version>
+			<type>jar</type>
+		</dependency>
+		
+		<!-- ActiveMQ for in memory queue server -->
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-all</artifactId>
+			<version>${org.apache.activemq-version}</version>
 		</dependency>
 		
 	</dependencies>

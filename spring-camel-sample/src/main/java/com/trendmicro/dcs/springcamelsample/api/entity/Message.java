@@ -1,11 +1,14 @@
 package com.trendmicro.dcs.springcamelsample.api.entity;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
 
-public class Message {
+public class Message implements Serializable {
+
+	private static final long serialVersionUID = -4747155819588832279L;
 
 	private String ticketNumber;
 	
