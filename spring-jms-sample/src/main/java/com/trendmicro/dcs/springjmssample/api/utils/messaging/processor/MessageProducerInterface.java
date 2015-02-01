@@ -8,9 +8,10 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 import com.trendmicro.dcs.springjmssample.api.entity.SampleMessage;
+import com.trendmicro.dcs.springjmssample.api.enums.MessageType;
 
 public interface MessageProducerInterface {
 	
-	void execute(SampleMessage sampleMessage) throws JMSException, JsonParseException, JsonMappingException, IOException;
+	void execute(SampleMessage sampleMessage, MessageType messageType) throws JMSException, JsonParseException, JsonMappingException, IOException;
 	
 }

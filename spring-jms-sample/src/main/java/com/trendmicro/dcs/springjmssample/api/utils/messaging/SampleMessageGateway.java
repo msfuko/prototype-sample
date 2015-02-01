@@ -17,6 +17,7 @@ import com.amazon.sqs.javamessaging.AmazonSQSMessagingClientWrapper;
 import com.amazon.sqs.javamessaging.SQSConnection;
 import com.trendmicro.dcs.springjmssample.api.entity.ContentMessage;
 import com.trendmicro.dcs.springjmssample.api.entity.SampleMessage;
+import com.trendmicro.dcs.springjmssample.api.enums.MessageType;
 import com.trendmicro.dcs.springjmssample.api.utils.messaging.processor.SampleMessageConsumer;
 import com.trendmicro.dcs.springjmssample.api.utils.messaging.processor.SampleMessageProducer;
 
@@ -60,7 +61,7 @@ public class SampleMessageGateway implements MessageGateway {
 		if(connection instanceof SQSConnection) {
             ensureQueueExists((SQSConnection)connection, queueName);
         }
-		producer.execute(contentMessage);
+		producer.execute(contentMessage, MessageType.REQUEST_REPLY);
 	}
 
 	@Override
@@ -72,6 +73,8 @@ public class SampleMessageGateway implements MessageGateway {
 	public void asyncReceive() throws JMSException, InterruptedException {
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		MessageConsumer consumer = session.createConsumer(session.createQueue(queueName));
+		
+		// Set up a consumer to consume messages 
 		consumer.setMessageListener(consumerListener);
 		connection.start();
 		Thread.sleep(timeout * 1000);
