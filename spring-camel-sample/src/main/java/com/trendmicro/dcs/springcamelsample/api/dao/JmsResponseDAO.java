@@ -21,6 +21,8 @@ public class JmsResponseDAO {
 	@Autowired
 	private String jmsResponseQueueName;
 
+	@Autowired
+	private Integer jmsResponseReceiveTimeout;
 	
 	/*
 	 * enqueue operation
@@ -54,7 +56,7 @@ public class JmsResponseDAO {
 
 		//init JmsTemplate
 		jmsTemplate = new JmsTemplate(connectionFactory);
-		jmsTemplate.setReceiveTimeout(0);
+		jmsTemplate.setReceiveTimeout(jmsResponseReceiveTimeout);
 		
 		//3 times retry
 		for(int i=0; i<3; i++){

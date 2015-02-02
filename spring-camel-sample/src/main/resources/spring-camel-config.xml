@@ -73,7 +73,8 @@
     <beans profile="test,staging">
 	<!-- Camel Builder -->
     <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
-    	<routeBuilder ref="producerRouteBuilder"/> 
+    	<!-- Temp disable for jms testing -->
+    	<!--  <routeBuilder ref="producerRouteBuilder"/> --> 
     	<!--  <routeBuilder ref="consumerRouteBuilder"/> --> 
     </camelContext>
    

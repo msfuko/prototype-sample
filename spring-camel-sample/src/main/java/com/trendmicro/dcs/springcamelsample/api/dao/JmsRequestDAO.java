@@ -3,6 +3,7 @@ package com.trendmicro.dcs.springcamelsample.api.dao;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageListener;
@@ -10,6 +11,8 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Component;
@@ -18,7 +21,7 @@ import com.trendmicro.dcs.springcamelsample.api.entity.ContentMessage;
 import com.trendmicro.dcs.springcamelsample.api.entity.Message;
 
 //use explicity declare at spring-jms-config.xml due to register to MessageListenerContainer
-//@Component
+@Component
 public class JmsRequestDAO implements MessageListener{
 	
 	@Autowired
@@ -58,6 +61,7 @@ public class JmsRequestDAO implements MessageListener{
 	 * it is handled by MessageListenerContainer (by spring)
 	 * @see javax.jms.MessageListener#onMessage(javax.jms.Message)
 	 */
+	@JmsListener(containerFactory = "jmsListenerContainerFactory", destination = "jms_request")
 	public void onMessage(javax.jms.Message jmsMessage) {
 		Message receiveMessage, replyMessage; 
 		String jmsMessageId = null;

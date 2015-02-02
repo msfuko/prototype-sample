@@ -50,6 +50,11 @@
     	<bean id="jmsResponseQueueName" class="java.lang.String">
     		<constructor-arg value="jms_response"/>
     	</bean>
+    	
+  		<!-- millisecond -->	
+    	<bean id="jmsResponseReceiveTimeout" class="java.lang.Integer">
+    		<constructor-arg value="10"/>
+    	</bean>
 
 		<!--  shouldn't re-use JmsTemplate due to dead lock
     	<bean id="JmsTemplate" class="org.springframework.jms.core.JmsTemplate">
@@ -60,13 +65,25 @@
    		<!--
    			JMS Message Listener for asynchronous reception
    			(non annotation method)
-   		-->   		
+   		-->
+   		<!--    		
    		<bean id="JmsRequestDAO" class="com.trendmicro.dcs.springcamelsample.api.dao.JmsRequestDAO"/>
    		<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
     		<property name="connectionFactory" ref="ConnectionFactory"/>
     		<property name="destinationName" ref="jmsRequestQueueName"/>
     		<property name="messageListener" ref="JmsRequestDAO" />
+    		<property name="concurrency" value="1-10"/>
 		</bean>
+		-->
 		
+		<!--
+			JMS Message Listener for asynchronous reception
+			(annotation method) 
+		 -->
+		<bean id="jmsListenerContainerFactory" class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">
+        	<property name="connectionFactory" ref="ConnectionFactory" />
+        	<property name="concurrency" value="1-10" />
+    	</bean>
+		 
    	</beans>
 </beans>
