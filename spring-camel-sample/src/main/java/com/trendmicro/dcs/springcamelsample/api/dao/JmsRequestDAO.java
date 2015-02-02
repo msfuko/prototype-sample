@@ -3,7 +3,6 @@ package com.trendmicro.dcs.springcamelsample.api.dao;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageListener;
@@ -11,7 +10,6 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
