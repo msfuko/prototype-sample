@@ -23,7 +23,11 @@ public class CamelDemoServiceTest {
 		Message message = sampleService.sendMessage();
 		assertNotNull(message);
 		assertEquals(message.getTicketNumber(), "CMDEV-256");
-		//Thread.sleep(3000);
+		
+		/*
+		 * add time to wait until consumer consumes...
+		 */
+		Thread.sleep(3000);
 	}
 
 }
