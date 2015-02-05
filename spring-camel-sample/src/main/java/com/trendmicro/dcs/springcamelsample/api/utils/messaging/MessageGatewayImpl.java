@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 import com.trendmicro.dcs.springcamelsample.api.entity.Message;
 
 @Component
-public class MessageGatewayImpl implements MessageGateway{
+public class MessageGatewayImpl implements MessageGateway {
 	
 	/**
 	 * Declare a producer endpoint
 	 */
-	@Produce(uri = "seda:outboundMessageChannel")
+	@Produce(uri = "direct:outboundMessageChannel")
 	ProducerTemplate producerTemplate;
 	
 	@Override
@@ -27,11 +27,4 @@ public class MessageGatewayImpl implements MessageGateway{
 		producerTemplate.sendBody(messages);
 	}
 
-	@Override
-	public Message receive(Message message) {
-		// dummy interface for gateway usage
-		return message;
-	}
-
-	
 }

@@ -19,13 +19,5 @@ public interface MessageGateway {
 	 */
 	void send(Collection<Message> messages);
 
-	/**
-	 * Receive message
-	 * @param message
-	 * @return message
-	 */
-	Message receive(Message message);
-	
-	//TODO - void deleteMessage()
 	
 }

@@ -2,6 +2,7 @@ package com.trendmicro.dcs.springcamelsample.api.entity;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.UUID;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -13,9 +14,25 @@ public class Message implements Serializable {
 	private String ticketNumber;
 	
 	private String description;
+	
+	private String className;
 
+	private String correlationId;
+	
+	public String getCorrelationId() {
+		return this.correlationId;
+	}
+	
+	public void setCorrelationId(String correlationId) {
+		this.correlationId = correlationId;
+	}
+	
 	public String getClassName() {
 		return this.getClass().getSimpleName();
+	}
+	
+	public void setClassName(String className) {
+		this.className = className;
 	}
 	
 	public String getTicketNumber() {

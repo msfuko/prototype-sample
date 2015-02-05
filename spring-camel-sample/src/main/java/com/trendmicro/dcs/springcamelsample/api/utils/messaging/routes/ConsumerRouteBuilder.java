@@ -6,13 +6,16 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
-import com.trendmicro.dcs.springcamelsample.api.utils.messaging.MessageGatewayImpl;
+import com.trendmicro.dcs.springcamelsample.api.service.SampleService;
 
 @Component
 public class ConsumerRouteBuilder extends RouteBuilder {
-
+	
+	@Resource(name = "producerQueueEndpoint")
+	private String requestQueueEndpoint;
+	
 	@Resource(name = "consumerQueueEndpoint")
-	private String queueEndpoint;
+	private String replyQueueEndpoint;
 	
 	/**
 	 * Configure consumer route - 
@@ -20,11 +23,12 @@ public class ConsumerRouteBuilder extends RouteBuilder {
 	 */	
 	@Override
 	public void configure() throws Exception {
-		from(queueEndpoint)
-		.routeId("recv-sqs")
+		from(requestQueueEndpoint)
+		.routeId("recv-request-send-response-sqs")
 		.log(LoggingLevel.INFO, "Start to receive message")
-		.errorHandler(deadLetterChannel("log:failedLetter"))
-		.bean(MessageGatewayImpl.class, "receiveMessage");
+		.errorHandler(deadLetterChannel("log:ConsumerfailedLetter"))
+		//.bean(SampleService.class, "receiveMessage")
+		.to(replyQueueEndpoint);
 	}
 	
 }

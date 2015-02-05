@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.camel.Handler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,11 +57,11 @@ public class SampleService {
 	 * Example of sending message via message gateway
 	 * @return message string if success, null if exception happens
 	 */
-	public String sendMessage() {
+	public Message sendMessage() {
 		Message message = this.newSampleMessage();
 		try {
 			messageGateway.send(message);
-			return message.toString();
+			return message;
 		} catch (Exception ex) {
 			return null;
 		}
@@ -78,6 +79,13 @@ public class SampleService {
 		} catch (Exception ex) {
 			return null;
 		}
+	}
+
+	@Handler
+	public void receiveMessage(Message message) {
+		//do something
+		System.out.println("Show to UI - ticket number " + message.getTicketNumber());
+		System.out.println("Show to UI - ticket description" + message.getDescription());
 	}
 	
 }

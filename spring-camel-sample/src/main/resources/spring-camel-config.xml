@@ -9,15 +9,6 @@
            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
    
     <beans profile="test">
-    <!-- AWS Config for testing -->
-    <bean name="sqsClient" class="com.amazonaws.services.sqs.AmazonSQSAsyncClient">
-        <constructor-arg>
-            <bean class="com.amazonaws.auth.BasicAWSCredentials">
-                <constructor-arg value="my_happy_key"/>
-                <constructor-arg value="I_told_you_its_a_secret"/>
-            </bean>
-        </constructor-arg>
-   	</bean> 
     <!-- Endpoint test setting ???-->
 	<bean id="producerQueueEndpoint" class="java.lang.String">
 			<description>Producer Queue Endpoint</description>
@@ -34,34 +25,14 @@
     </beans>
     
     <beans profile="staging">
-    <!-- AWS Config for SQS -->
-    <bean name="sqsClient" class="com.amazonaws.services.sqs.AmazonSQSAsyncClient">
-        <constructor-arg>
-            <bean class="com.amazonaws.auth.BasicAWSCredentials">
-                <constructor-arg value="#{systemEnvironment['AWS_ACCESS_KEY_ID']}"/>
-                <constructor-arg value="#{systemEnvironment['AWS_SECRET_ACCESS_KEY']}"/>
-            </bean>
-        </constructor-arg>
-    </bean>
-
-	<!-- AWS Config for S3 -->
-    <bean name="s3Client" class="com.amazonaws.services.s3.AmazonS3Client">
-        <constructor-arg>
-            <bean class="com.amazonaws.auth.BasicAWSCredentials">
-                <constructor-arg value="#{systemEnvironment['AWS_ACCESS_KEY_ID']}"/>
-                <constructor-arg value="#{systemEnvironment['AWS_SECRET_ACCESS_KEY']}"/>
-            </bean>
-        </constructor-arg>
-    </bean>
-    
     <!-- Endpoint Setting -->
 	<bean id="producerQueueEndpoint" class="java.lang.String">
 			<description>Producer Queue Endpoint</description>
-			<constructor-arg value="aws-sqs://demo?amazonSQSClient=#sqsClient&amp;amazonSQSEndpoint=http://sqs.us-east-1.amazonaws.com&amp;?exchangePattern=InOut"/>
+			<constructor-arg value="aws-sqs://demo?amazonSQSClient=#sqsClient&amp;amazonSQSEndpoint=http://sqs.us-east-1.amazonaws.com"/>
 	</bean>
 	<bean id="consumerQueueEndpoint" class="java.lang.String">
 			<description>Consumer Queue Endpoint</description>
-			<constructor-arg value="aws-sqs://demo?amazonSQSClient=#sqsClient&amp;visibilityTimeout=300&amp;deleteAfterRead=true&amp;amazonSQSEndpoint=http://sqs.us-east-1.amazonaws.com"/>
+			<constructor-arg value="aws-sqs://demo-reply?amazonSQSClient=#sqsClient&amp;visibilityTimeout=300&amp;deleteAfterRead=true&amp;deleteIfFiltered=false&amp;amazonSQSEndpoint=http://sqs.us-east-1.amazonaws.com"/>
 	</bean>
 	<bean id="producerS3Endpoint" class="java.lang.String">
 		<description>Testing S3 Endpoint</description>
@@ -71,11 +42,30 @@
 	
 	
     <beans profile="test,staging">
+    <bean name="sqsClient" class="com.amazonaws.services.sqs.AmazonSQSAsyncClient">
+	     <constructor-arg>
+    	     <bean class="com.amazonaws.auth.BasicAWSCredentials">
+                <constructor-arg value="#{systemEnvironment['AWS_ACCESS_KEY_ID']}"/>
+                <constructor-arg value="#{systemEnvironment['AWS_SECRET_ACCESS_KEY']}"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+	<!-- AWS Config for S3 -->
+    <bean name="s3Client" class="com.amazonaws.services.s3.AmazonS3Client">
+        <constructor-arg>
+    	     <bean class="com.amazonaws.auth.BasicAWSCredentials">
+                <constructor-arg value="#{systemEnvironment['AWS_ACCESS_KEY_ID']}"/>
+                <constructor-arg value="#{systemEnvironment['AWS_SECRET_ACCESS_KEY']}"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+    
 	<!-- Camel Builder -->
     <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
     	<!-- Temp disable for jms testing -->
-    	<!--  <routeBuilder ref="producerRouteBuilder"/> --> 
-    	<!--  <routeBuilder ref="consumerRouteBuilder"/> --> 
+    	<routeBuilder ref="producerRouteBuilder"/>  
+    	<routeBuilder ref="consumerRouteBuilder"/> 
     </camelContext>
    
     <bean id="fileDirectory" class="java.lang.String">

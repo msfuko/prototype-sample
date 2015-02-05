@@ -27,7 +27,7 @@ public class SampleController {
 	public String testMessageSQS() {
 		logger.debug("test message sqs is called");
 		try {
-			return sampleService.sendMessage();
+			return sampleService.sendMessage().toString();
 		} catch (Exception e) {
 			//pass
 		}
