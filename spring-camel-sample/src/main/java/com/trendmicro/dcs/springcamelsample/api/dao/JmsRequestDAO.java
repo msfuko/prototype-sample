@@ -82,7 +82,7 @@ public class JmsRequestDAO implements MessageListener{
 				receiveMessage = (Message)((ObjectMessage)jmsMessage).getObject();
 				System.out.println("*** received message --> " + receiveMessage.toString() + " ***");
 
-				replyMessage = this.dummyReplyMessage();
+				replyMessage = this.dummyReplyMessage(receiveMessage.getTicketNumber());
 				jmsResponseDAO.enqueue(replyMessage, jmsMessageId, jmsCorrelationId);
 				
 			} catch (JMSException e) {
@@ -94,9 +94,9 @@ public class JmsRequestDAO implements MessageListener{
 		}
 	}
 	
-	private Message dummyReplyMessage(){
+	private Message dummyReplyMessage(String ticketId){
 		ContentMessage message = new ContentMessage();
-		message.setTicketNumber("CMDEV-512");
+		message.setTicketNumber(ticketId);
 		message.setDescription("ok");
 		Map<String, String> misc = new HashMap<String, String>();
 		misc.put("Dept", "DCS-RD");
