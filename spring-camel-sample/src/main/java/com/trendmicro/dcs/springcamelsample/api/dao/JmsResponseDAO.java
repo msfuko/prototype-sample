@@ -49,10 +49,11 @@ public class JmsResponseDAO {
 	/*
 	 * synchronous reception
 	 */
-	public Message dequeue(){
+	public Message dequeue(String correlationId){
 		JmsTemplate jmsTemplate;
 		javax.jms.Message jmsMessage=null;
 		Message receiveMessage = null;
+		String selectorExpression = "JMSCorrelationID='" + correlationId + "'";
 
 		//init JmsTemplate
 		jmsTemplate = new JmsTemplate(connectionFactory);
@@ -60,7 +61,8 @@ public class JmsResponseDAO {
 		
 		//3 times retry
 		for(int i=0; i<3; i++){
-			jmsMessage = jmsTemplate.receive(jmsResponseQueueName);
+			//jmsMessage = jmsTemplate.receive(jmsResponseQueueName);
+			jmsMessage = jmsTemplate.receiveSelected(jmsResponseQueueName, selectorExpression);
 			if (jmsMessage != null){
 				break;
 			}

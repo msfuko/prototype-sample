@@ -19,10 +19,15 @@ public class JmsDemoService {
 	private JmsResponseDAO consumer;
 	
 	public Message getJIRATickets(Message message){
+		String correlationId;
+		
+		//prepare correlationId
+		correlationId = UUID.randomUUID().toString();
+		
 		//send
-		producer.enqueue(message, "JmsDemoService", UUID.randomUUID().toString());
+		producer.enqueue(message, "JmsDemoService", correlationId);
 		
 		//polling return queue
-		return consumer.dequeue();
+		return consumer.dequeue(correlationId);
 	}
 }
