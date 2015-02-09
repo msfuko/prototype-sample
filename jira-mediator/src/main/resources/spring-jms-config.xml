@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd">
+   
+	<!-- annotation for JMS -->
+	<jms:annotation-driven/>
+
+   	<beans profile="test">
+		<bean id="ConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+			<!-- in memory message queue server, refer to http://activemq.apache.org/how-to-unit-test-jms-code.html -->
+			<constructor-arg value="vm://localhost?broker.persistent=false" />			
+		</bean>   	
+   	</beans>
+   	
+	<beans profile="staging">
+   
+		<!-- refer an example http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/jmsclient.html#samples  -->
+    	<bean id="CredentialsProviderBean" class="com.amazonaws.auth.DefaultAWSCredentialsProviderChain"/>
+    
+    	<bean id="ConnectionFactoryBuilder" class="com.amazon.sqs.javamessaging.SQSConnectionFactory$Builder">
+    		<property name="regionName" value="us-east-1"/>
+    		<property name="numberOfMessagesToPrefetch" value="5"/>
+    		<property name="awsCredentialsProvider" ref="CredentialsProviderBean"/>
+    	</bean>
+    
+		<bean id="ConnectionFactory" class="com.amazon.sqs.javamessaging.SQSConnectionFactory"
+			factory-bean="ConnectionFactoryBuilder"
+			factory-method="build">
+		</bean>
+   	</beans>
+   	
+   	<!-- common -->
+   	<beans>
+   		<!-- 
+    	<bean id="jmsDemoQueueName" class="java.lang.String">
+    		<constructor-arg value="demo"/>
+    	</bean>
+    	 -->
+
+    	<bean id="jmsRequestQueueName" class="java.lang.String">
+    		<constructor-arg value="jms_request"/>
+    	</bean>
+
+    	<bean id="jmsResponseQueueName" class="java.lang.String">
+    		<constructor-arg value="jms_response"/>
+    	</bean>
+    	
+  		<!-- millisecond -->	
+    	<bean id="jmsResponseReceiveTimeout" class="java.lang.Integer">
+    		<constructor-arg value="1000"/>
+    	</bean>
+
+		<!--  shouldn't re-use JmsTemplate due to dead lock
+    	<bean id="JmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    		<constructor-arg ref="ConnectionFactory" />
+   		</bean>
+   		-->
+   		
+   		<!--
+   			JMS Message Listener for asynchronous reception
+   			(non annotation method)
+   		<bean id="JmsRequestDAO" class="com.trendmicro.dcs.jiramediator.api.dao.JmsRequestDAO"/>
+   		<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+    		<property name="connectionFactory" ref="ConnectionFactory"/>
+    		<property name="destinationName" ref="jmsRequestQueueName"/>
+    		<property name="messageListener" ref="JmsRequestDAO" />
+    		<property name="concurrency" value="1-10"/>
+		</bean>
+   		-->
+		<!--
+			JMS Message Listener for asynchronous reception
+			(annotation method) 
+		 -->
+		<bean id="jmsListenerContainerFactory" class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">
+        	<property name="connectionFactory" ref="ConnectionFactory" />
+        	<property name="concurrency" value="1-10" />
+    	</bean>
+		 
+   	</beans>
+</beans>
