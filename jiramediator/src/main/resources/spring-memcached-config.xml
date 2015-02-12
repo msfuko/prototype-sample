@@ -56,7 +56,9 @@
       <bean class="com.google.code.ssm.providers.elasticache.ElastiCacheConfiguration">
         <property name="consistentHashing" value="true" />
         <!-- in this use static configuration and do not try to fetch configuration of nodes from cluster (auto discovery node feature is disabled) -->
-        <property name="clientMode" value="#{T(net.spy.memcached.ClientMode).Static}" />
+        <!-- <property name="clientMode" value="#{T(net.spy.memcached.ClientMode).Static}" /> -->
+        <!-- use dynamic configuration and fetch configuration of nodes from cluster (auto discovery node feature is enabled) -->
+        <property name="clientMode" value="#{T(net.spy.memcached.ClientMode).Dynamic}" />
         <!-- spring can produce keys that contain unacceptable characters -->
         <property name="useBinaryProtocol" value="true" />
         <property name="operationTimeout" value="5000"/>

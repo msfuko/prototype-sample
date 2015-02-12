@@ -19,6 +19,7 @@
 		<junit-version>4.11</junit-version>
 		<amazon-sqs-java-messaging-lib-version>1.0.0</amazon-sqs-java-messaging-lib-version>
 		<httpclient-version>3.1</httpclient-version>
+		<mockito-version>1.9.5</mockito-version>
 	</properties>
 	<dependencies>
 		<!-- Spring -->
@@ -139,6 +140,12 @@
   			<groupId>com.google.code.simple-spring-memcached</groupId>
   			<artifactId>aws-elasticache-provider</artifactId>
   			<version>${simple-spring-memcached-version}</version>
+  			<exclusions>
+    			<exclusion>
+        		<groupId>junit</groupId>
+        		<artifactId>junit-dep</artifactId>
+    			</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<!-- utils -->
@@ -151,6 +158,11 @@
 		<groupId>commons-httpclient</groupId>
 			<artifactId>commons-httpclient</artifactId>
 			<version>${httpclient-version}</version>
+		</dependency>
+		<dependency>
+   			<groupId>commons-codec</groupId>
+   			<artifactId>commons-codec</artifactId>
+   			<version>1.10</version>
 		</dependency>
 	
 		 <!-- Apache commons -->
@@ -178,6 +190,12 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<version>${org.springframework-version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito-version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

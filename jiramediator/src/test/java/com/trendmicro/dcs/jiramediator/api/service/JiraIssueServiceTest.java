@@ -2,30 +2,150 @@ package com.trendmicro.dcs.jiramediator.api.service;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpHost;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.trendmicro.dcs.jiramediator.api.model.rest.ProjectInfoRequest;
-
+import com.trendmicro.dcs.jiramediator.api.dao.RestRequestDAO;
+import com.trendmicro.dcs.jiramediator.api.model.JiraResultBean;
+import com.trendmicro.dcs.jiramediator.api.model.rest.issue.IssueRequest;
+import com.trendmicro.dcs.jiramediator.api.model.rest.project.ProjectInfoRequest;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/spring/root-context.xml")
-@ActiveProfiles("staging")
+@ActiveProfiles("test")
 public class JiraIssueServiceTest {
+
+	@Resource
+	HttpHost httphost;
 	
-	//@Autowired
-	//JiraIssueService jiraIssueService;
+	@InjectMocks
+	JiraIssueService jiraIssueService;
+	
+	@Spy
+	RestRequestDAO restRequestDAO;
+	
+
+	private Log logger = LogFactory.getLog(this.getClass());
+	
+	@Before
+	public void setUp() throws Exception {
+		MockitoAnnotations.initMocks(this);
+	}
+
+	@After
+	@CacheEvict(value = "default", allEntries = true)  
+	public void tearDown() throws Exception {
+	}
+
+	@Test
+	public void testGetIssue() {
+		IssueRequest request = new IssueRequest(httphost.toURI());
+		request.setIssueKey("RFC-50");
+		ResponseEntity<String> response = new ResponseEntity<String>(
+				this.getGetIssueResponse(), HttpStatus.OK);
+		Mockito.doReturn(restRequestDAO.responseWrapper(response)).when(restRequestDAO).get(request);
+		JiraResultBean result = jiraIssueService.getIssue(request);
+		assertEquals(result.getResponseContent(), this.getGetIssueResponse());
+	}
 	
 	@Test
-	public void testGetProjectInfo() {
-		assertTrue(true);
-		/*
-		ProjectInfoRequestBean request = new ProjectInfoRequestBean();
-		request.setProjectKey("changeManagement");
-		jiraIssueService.getProjectInfo(request);*/
+	public void createIssue() throws JsonGenerationException, JsonMappingException, IOException {
+		IssueRequest request = new IssueRequest(httphost.toURI());
+		request.setPayload(this.getTestIssueRequest());
+		ResponseEntity<String> response = new ResponseEntity<String>(
+				this.getCreateIssueResponse(), HttpStatus.OK);
+		Mockito.doReturn(restRequestDAO.responseWrapper(response)).when(restRequestDAO).post(request);
+		JiraResultBean result = jiraIssueService.syncCreateIssue(request);
+		assertEquals(result.getResponseContent(), this.getCreateIssueResponse());
+	}
+
+	@Test
+	public void updateIssue() throws JsonGenerationException, JsonMappingException, IOException {
+		IssueRequest request = new IssueRequest(httphost.toURI());
+		request.setIssueKey("RFC-99");
+		request.setPayload(this.getTestUpdateIssueRequest());
+		ResponseEntity<String> response = new ResponseEntity<String>(
+				this.getGetIssueResponse(), HttpStatus.OK);
+		Mockito.doReturn(restRequestDAO.responseWrapper(response)).when(restRequestDAO).put(request);	
+		JiraResultBean result = jiraIssueService.updateIssue(request);
+		assertEquals(result.getResponseContent(), this.getGetIssueResponse());
+	}
+	
+	private String getTestIssueRequest() throws JsonGenerationException,
+	JsonMappingException, IOException {
+
+		Map<String, String> project = new HashMap<String, String>();
+		project.put("id", "10260"); 
+		Map<String, String> issueType = new HashMap<String, String>();
+		issueType.put("id", "35"); 
+		Map<String, String> reporter = new HashMap<String, String>();
+		reporter.put("name", "otis_lin");
+        
+        // construct fields property
+        Map<String, Object> fields = new HashMap<String, Object>();
+        fields.put("project", project);
+        fields.put("issuetype", issueType);
+        fields.put("reporter", reporter);
+        fields.put("summary", "test summary");
+        fields.put("description", "test desc");
+        Map<String, Object> reqMap = new HashMap<String, Object>();
+        reqMap.put("fields", fields);
+        
+        return new ObjectMapper().writeValueAsString(reqMap);
+	}
+	
+	private String getTestUpdateIssueRequest() throws JsonGenerationException, 
+	JsonMappingException, IOException {
+		// construct fields property
+		Map<String, Object> fields = new HashMap<String, Object>();
+		fields.put("summary", "update issue summary, time" + new Date());
+		fields.put("description", "update issue desc, time" + new Date());
+				
+		// construct the requestMap, then construct a json object by it 
+		Map<String, Object> reqMap = new HashMap<String, Object>();
+		reqMap.put("fields", fields);
 		
+		return new ObjectMapper().writeValueAsString(reqMap);
+	}
+	
+	private String getCreateIssueResponse() {
+		return "{\"id\": \"10000\", \"key\": \"TST-24\",\"self\": "
+				+ "\"http://www.example.com/jira/rest/api/2/issue/10000\"}\n";
+	}
+	
+	private String getGetIssueResponse() {
+		return "{\"expand\":\"renderedFields,names,schema,transitions,operations,editmeta,changelog\",\"id\":\"197954\",\"se"
+				+ "lf\":\"https://dcstaskcentral.trendmicro.com/coc-alpha/rest/api/2/issue/197954\",\"key\":\"RFC-50\",\"fiel"
+				+ "ds\":{\"summary\":\"test summary \",\"issuetype\":{\"self\":\"https://dcstaskcentral.trendmicro.com/coc-alp"
+				+ "ha/rest/api/2/issuetype/35\",\"id\":\"35\",\"description\":\"RFC for data center infrastructure\",\"iconUr"
+				+ "l\":\"https://dcstaskcentral.trendmicro.com/coc-alpha/images/icons/genericissue.gif\",\"name\":\"RFC (Infra"
+				+ ")\",\"subtask\":false}}}";
 	}
 }

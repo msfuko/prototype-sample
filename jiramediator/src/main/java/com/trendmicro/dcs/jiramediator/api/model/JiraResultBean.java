@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.springframework.http.HttpStatus;
 
 public class JiraResultBean implements Serializable {
 	
@@ -12,15 +13,16 @@ public class JiraResultBean implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private int responseCode;
+	//private int responseCode;
+	private HttpStatus responseCode;
 	private Object responseContent;
 	//private String message;
 
-	public int getResponseCode() {
+	public HttpStatus getResponseCode() {
 		return responseCode;
 	}
 
-	public void setResponseCode(int responseCode) {
+	public void setResponseCode(HttpStatus responseCode) {
 		this.responseCode = responseCode;
 	}
 /*

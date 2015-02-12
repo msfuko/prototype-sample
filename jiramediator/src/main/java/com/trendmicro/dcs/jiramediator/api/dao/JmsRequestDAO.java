@@ -34,7 +34,7 @@ public class JmsRequestDAO implements MessageListener, BaseRequestDAO {
 	
 	
 	@Override
-	public void put(AbstractBaseRequest request) {
+	public Object put(AbstractBaseRequest request) {
 		JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
 		jmsTemplate.send(jmsRequestQueueName, new MessageCreator() {
             public javax.jms.Message createMessage(Session session) throws JMSException {
@@ -47,6 +47,7 @@ public class JmsRequestDAO implements MessageListener, BaseRequestDAO {
             	return jmsMessage;
             }
     });
+		return jmsTemplate;
 	}
 	
 	@Override
@@ -64,6 +65,7 @@ public class JmsRequestDAO implements MessageListener, BaseRequestDAO {
 			AbstractBaseRequest receiveMessage = (AbstractBaseRequest)((ObjectMessage)jmsMessage).getObject();
 			if (receiveMessage != null) {
 				logger.info("New message is received! " + jmsMessageId);
+				//TODO error handling! send out notification
 				restRequestDAO.request(receiveMessage);
 			} else {
 				System.err.println("Message invalid - Cannot get useful message " + jmsMessageId);

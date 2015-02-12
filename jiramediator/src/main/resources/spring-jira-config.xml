@@ -20,17 +20,38 @@
     
     <!-- Configuration based on different environment -->
             
-    <beans profile="test,staging">
+    <beans profile="test">
         <!-- rest -->
+    	<bean id="username" class="java.lang.String">
+    		<constructor-arg value="#{systemEnvironment['JIRA_USERNAME']}" />
+    	</bean>
+    	<bean id="password" class="java.lang.String">
+    		<constructor-arg value="#{systemEnvironment['JIRA_PASSWORD']}" />
+    	</bean>
+    	<bean id="httphost" class="org.apache.http.HttpHost">
+    		<constructor-arg value="dcs-alpha-ops.sjdc/coc-alpha/rest/api/2"/>  
+    	</bean>
+    </beans>
+    
+    <beans profile="staging">
+        <!-- rest -->
+    	<bean id="username" class="java.lang.String">
+    		<constructor-arg value="#{systemEnvironment['JIRA_USERNAME']}" />
+    	</bean>
+    	<bean id="password" class="java.lang.String">
+    		<constructor-arg value="#{systemEnvironment['JIRA_PASSWORD']}" />
+    	</bean>
+    	<!--  
     	<bean id="credentials" class="org.apache.http.auth.UsernamePasswordCredentials">
         	<constructor-arg value="#{systemEnvironment['JIRA_USERNAME']}"/>
         	<constructor-arg value="#{systemEnvironment['JIRA_PASSWORD']}"/>
     	</bean>
+    	-->
     	<bean id="httphost" class="org.apache.http.HttpHost">
     		<!-- <constructor-arg value="dcs-alpha-ops.sjdc/coc-alpha/rest/api/2"/>
     		<constructor-arg value="80"/>
     		<constructor-arg value="http"/> -->
-    		<constructor-arg value="dcs-alpha-ops.sjdc/coc-alpha/rest/api/2"/> 
+    		<constructor-arg value="dcs-alpha-ops.sjdc/coc-alpha/rest/api/latest"/> 
     	</bean>
     </beans>
     
