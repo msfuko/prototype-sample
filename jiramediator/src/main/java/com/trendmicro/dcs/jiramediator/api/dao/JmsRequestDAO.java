@@ -57,16 +57,17 @@ public class JmsRequestDAO implements MessageListener, BaseRequestDAO {
 				
 		try {
 			jmsMessageId = jmsMessage.getJMSMessageID();
-			logger.info("New message is listened! " + jmsMessageId);
+			logger.info("New message is listened! - " + jmsMessageId);
 			
 			/*
 			 * handling message
 			 */
 			AbstractBaseRequest receiveMessage = (AbstractBaseRequest)((ObjectMessage)jmsMessage).getObject();
 			if (receiveMessage != null) {
-				logger.info("New message is received! " + jmsMessageId);
+				logger.info("New message is received! - " + jmsMessageId);
 				//TODO error handling! send out notification
-				restRequestDAO.request(receiveMessage);
+				JiraResultBean result = restRequestDAO.request(receiveMessage);
+				logger.debug("New request is executed - " + result.getResponseContent());
 			} else {
 				System.err.println("Message invalid - Cannot get useful message " + jmsMessageId);
 			}

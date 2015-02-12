@@ -22,6 +22,12 @@ import com.trendmicro.dcs.jiramediator.api.model.rest.issue.IssueRequest;
 import com.trendmicro.dcs.jiramediator.api.model.rest.project.ProjectInfoRequest;
 import com.trendmicro.dcs.jiramediator.api.service.JiraIssueService;
 
+/*
+ * Note: 
+ * It's not a formal controller -- just for testing!
+ * If you're going to implement your controller - add Spring Security!
+ * 
+ */
 @Controller
 @RequestMapping(value = "/rest")
 public class DemoController {

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -28,40 +30,76 @@ public class JiraIssueService {
 	
 	@Autowired
 	JmsRequestDAO jmsRequestDAO;
-	
+
+	private Log logger = LogFactory.getLog(this.getClass());
+
+	/**
+	 * invoke [GET] /jira/rest/api/latest/project
+	 * @param request
+	 * @return
+	 */
 	@Cacheable(value = "default", key = "{#root.methodName, #request.projectKey}")
 	public JiraResultBean getProjectInfo(ProjectInfoRequest request) {
-		System.out.println("REQUEST get project");
+		logger.debug("cache miss - " + request.toString());
 		request.setRequestMethod(HttpMethod.GET);
 		return restRequestDAO.get(request);
 	}
-	
+
+	/**
+	 * invoke [GET] /jira/rest/api/latest/issue
+	 * @param request
+	 * @return
+	 */
 	@Cacheable(value = "default", key = "{#root.methodName, #request.issueKey}")
 	public JiraResultBean getIssue(IssueRequest request) {
-		System.out.println("REQUEST get issue");
+		logger.debug("cache miss - " + request.toString());
 		request.setRequestMethod(HttpMethod.GET);
 		return restRequestDAO.get(request);
 	}
 	
+	/**
+	 * insert message to the queue
+	 * @param request
+	 */
 	public void createIssue(IssueRequest request) {
+		logger.debug("create async issue");
 		request.setRequestMethod(HttpMethod.POST);
 		jmsRequestDAO.put(request);
 	}
 
+	/**
+	 * invoke [POST] /jira/rest/api/latest/issue
+	 * @param request
+	 */
 	public JiraResultBean syncCreateIssue(IssueRequest request) {
+		logger.debug("create sync issue");
 		request.setRequestMethod(HttpMethod.POST);
 		return restRequestDAO.post(request);
 	}
 	
+	/**
+	 * invoke [PUT] /jira/rest/api/latest/issue
+	 * @param request
+	 * @return
+	 */
 	@CachePut(value = "default", key = "new String({#root.methodName, #request.issueKey})")
 	public JiraResultBean updateIssue(IssueRequest request) {
+		logger.debug("update cache - " + request.toString());
 		request.setRequestMethod(HttpMethod.PUT);
-		//jmsRequestDAO.put(request);
 		return restRequestDAO.put(request);
 	}
 	
+	/**
+	 * invoke [POST] /jira/rest/api/latest/search
+	 * @param request
+	 * @return
+	 * @throws JsonGenerationException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
 	@Cacheable(value = "default", key = "{#root.methodName, #request.jql, #request.startAt, #request.maxResults, #request.fields}")
 	public JiraResultBean searchIssue(SearchRequest request) throws JsonGenerationException, JsonMappingException, IOException {
+		logger.debug("cache miss - " + request.toString());
 		request.setRequestMethod(HttpMethod.POST);
 		Map<String, Object> entityMap = new LinkedHashMap<String, Object>();
         

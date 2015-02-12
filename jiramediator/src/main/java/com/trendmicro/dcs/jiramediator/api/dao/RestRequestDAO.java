@@ -30,9 +30,6 @@ public class RestRequestDAO implements BaseRequestDAO {
 	@Resource(name = "password")
 	private String password;
 	
-	//@Autowired
-	//HttpComponentsClientHttpRequestFactoryBasicAuth httpRequestFactory;
-	
 	/**
 	 * Wrap http response to ResultBean
 	 * @param response
@@ -45,26 +42,27 @@ public class RestRequestDAO implements BaseRequestDAO {
 		return result;
 	}
 	
-	public void request(AbstractBaseRequest request) {
+	public JiraResultBean request(AbstractBaseRequest request) {
 		HttpMethod httpMethod = request.getRequestMethod();
-		
+		JiraResultBean result = null;
 		switch (httpMethod) {
 		
 			case PUT: 
-				this.put(request);
+				result = this.put(request);
 				break;
 				
 			case POST:
-				this.post(request);
+				result = this.post(request);
 				break;
 				
 			case GET:
-				this.get(request);
+				result = this.get(request);
 				break;
 				
 			default:
 				throw new UnsupportedOperationException();
 		}
+		return result;
 	}
 	
 	@Override
@@ -88,7 +86,6 @@ public class RestRequestDAO implements BaseRequestDAO {
 
 	private HttpHeaders getHttpHeaders() {
 		HttpHeaders headers = new HttpHeaders();
-		//headers.add("Accept", "application/json");
 		headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		headers.add(JIRA_TOKEN_HEADER, "nocheck");
 		headers.add(HttpHeaders.AUTHORIZATION, this.getJiraAuthHeader());
