@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.jms.JMSException;
 
 import org.apache.http.HttpHost;
 import org.codehaus.jackson.JsonGenerationException;
@@ -84,7 +85,7 @@ public class JiraIssueServiceITest {
 	}
 
 	@Test(timeout = 60000)
-	public void testCreateIssue() throws JsonGenerationException, JsonMappingException, IOException, InterruptedException {
+	public void testCreateIssue() throws JsonGenerationException, JsonMappingException, IOException, InterruptedException, JMSException {
 		IssueRequest request = new IssueRequest(httphost.toURI());
 		request.setPayload(this.getTestIssueRequest());
 		jiraIssueService.createIssue(request);

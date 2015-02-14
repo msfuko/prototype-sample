@@ -1,6 +1,10 @@
 package com.trendmicro.dcs.jiramediator.api.service;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.times;  
+import static org.mockito.Mockito.verify; 
+import static org.mockito.Mockito.when;  
+import static org.mockito.Matchers.any;
 
 import java.io.IOException;
 import java.util.Date;
@@ -16,6 +20,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,14 +29,23 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.springframework.aop.framework.Advised;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
+import org.springframework.cache.support.SimpleCacheManager;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestClientException;
 
 import com.trendmicro.dcs.jiramediator.api.dao.RestRequestDAO;
 import com.trendmicro.dcs.jiramediator.api.model.JiraResultBean;
@@ -46,17 +60,33 @@ public class JiraIssueServiceTest {
 	HttpHost httphost;
 	
 	@InjectMocks
+	@Autowired  
 	JiraIssueService jiraIssueService;
 	
-	@Spy
+	//@Spy
+	@Mock
 	RestRequestDAO restRequestDAO;
 	
+	@Autowired
+	private CacheManager cacheManager;
 
 	private Log logger = LogFactory.getLog(this.getClass());
+
+	private JiraResultBean responseWrapper(ResponseEntity<String> response) {
+		JiraResultBean result = new JiraResultBean();
+		result.setResponseCode(response.getStatusCode());
+		result.setResponseContent(response.getBody());
+		return result;
+	}
 	
 	@Before
 	public void setUp() throws Exception {
+		// init mockito annotations
 		MockitoAnnotations.initMocks(this);
+		
+		// this is the trickt to make @Injectmocks and @Autowired work. we need autowired to make @Cacheable work properly. 
+		JiraIssueService target = (JiraIssueService) unwrapProxy(jiraIssueService);
+		ReflectionTestUtils.setField(target, "restRequestDAO", restRequestDAO); 
 	}
 
 	@After
@@ -70,9 +100,21 @@ public class JiraIssueServiceTest {
 		request.setIssueKey("RFC-50");
 		ResponseEntity<String> response = new ResponseEntity<String>(
 				this.getGetIssueResponse(), HttpStatus.OK);
-		Mockito.doReturn(restRequestDAO.responseWrapper(response)).when(restRequestDAO).get(request);
+		when(restRequestDAO.get(request)).thenReturn(this.responseWrapper(response));
+		
+		// call once
 		JiraResultBean result = jiraIssueService.getIssue(request);
 		assertEquals(result.getResponseContent(), this.getGetIssueResponse());
+		
+		// call again and check restRequestDAO is only called once
+		jiraIssueService.getIssue(request);
+		verify(restRequestDAO, times(1)).get(request);
+	
+		// TODO
+		IssueRequest request2 = new IssueRequest(httphost.toURI());
+		request2.setIssueKey("RFC-199");
+		result = jiraIssueService.getIssue(request2);
+		assertTrue(result == null);
 	}
 	
 	@Test
@@ -81,7 +123,7 @@ public class JiraIssueServiceTest {
 		request.setPayload(this.getTestIssueRequest());
 		ResponseEntity<String> response = new ResponseEntity<String>(
 				this.getCreateIssueResponse(), HttpStatus.OK);
-		Mockito.doReturn(restRequestDAO.responseWrapper(response)).when(restRequestDAO).post(request);
+		when(restRequestDAO.post(request)).thenReturn(this.responseWrapper(response)); 
 		JiraResultBean result = jiraIssueService.syncCreateIssue(request);
 		assertEquals(result.getResponseContent(), this.getCreateIssueResponse());
 	}
@@ -93,9 +135,23 @@ public class JiraIssueServiceTest {
 		request.setPayload(this.getTestUpdateIssueRequest());
 		ResponseEntity<String> response = new ResponseEntity<String>(
 				this.getGetIssueResponse(), HttpStatus.OK);
-		Mockito.doReturn(restRequestDAO.responseWrapper(response)).when(restRequestDAO).put(request);	
+		when(restRequestDAO.put(request)).thenReturn(this.responseWrapper(response)); 
 		JiraResultBean result = jiraIssueService.updateIssue(request);
 		assertEquals(result.getResponseContent(), this.getGetIssueResponse());
+		assertEquals(result.getResponseContent(), jiraIssueService.getIssue(request).getResponseContent());
+		//TODO
+	}
+
+	public static final Object unwrapProxy(Object bean) throws Exception {
+		/*
+		 * If the given object is a proxy, set the return value as the object
+		 * being proxied, otherwise return the given object.
+		 */
+		if (AopUtils.isAopProxy(bean) && bean instanceof Advised) {
+			Advised advised = (Advised) bean;
+			bean = advised.getTargetSource().getTarget();
+		}
+		return bean;
 	}
 	
 	private String getTestIssueRequest() throws JsonGenerationException,
@@ -141,11 +197,13 @@ public class JiraIssueServiceTest {
 	}
 	
 	private String getGetIssueResponse() {
+		return "NOO";
+		/*
 		return "{\"expand\":\"renderedFields,names,schema,transitions,operations,editmeta,changelog\",\"id\":\"197954\",\"se"
 				+ "lf\":\"https://dcstaskcentral.trendmicro.com/coc-alpha/rest/api/2/issue/197954\",\"key\":\"RFC-50\",\"fiel"
 				+ "ds\":{\"summary\":\"test summary \",\"issuetype\":{\"self\":\"https://dcstaskcentral.trendmicro.com/coc-alp"
 				+ "ha/rest/api/2/issuetype/35\",\"id\":\"35\",\"description\":\"RFC for data center infrastructure\",\"iconUr"
 				+ "l\":\"https://dcstaskcentral.trendmicro.com/coc-alpha/images/icons/genericissue.gif\",\"name\":\"RFC (Infra"
-				+ ")\",\"subtask\":false}}}";
+				+ ")\",\"subtask\":false}}}";*/
 	}
 }

@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jms.JMSException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHost;
@@ -52,7 +54,7 @@ public class DemoController {
 	
 	@ResponseBody
 	@RequestMapping(method = RequestMethod.GET, value = "/demo/post")
-	public String testPostRequest() throws JsonGenerationException, JsonMappingException, IOException {
+	public String testPostRequest() throws JsonGenerationException, JsonMappingException, IOException, JMSException {
 		logger.info("test is called");
 		IssueRequest request = new IssueRequest(httphost.toURI());
 		request.setPayload(this.getSampleIssueRequest());

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.jms.JMSException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonGenerationException;
@@ -14,6 +16,8 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.test.annotation.Timed;
+import org.springframework.web.client.RestClientException;
 
 import com.trendmicro.dcs.jiramediator.api.dao.JmsRequestDAO;
 import com.trendmicro.dcs.jiramediator.api.dao.RestRequestDAO;
@@ -42,7 +46,13 @@ public class JiraIssueService {
 	public JiraResultBean getProjectInfo(ProjectInfoRequest request) {
 		logger.debug("cache miss - " + request.toString());
 		request.setRequestMethod(HttpMethod.GET);
-		return restRequestDAO.get(request);
+		JiraResultBean result = null;
+		try {
+			result = restRequestDAO.get(request);
+		} catch (Exception ex) {
+			throw new RestClientException("Unable to getProjectInfo", ex);
+		}
+		return result;
 	}
 
 	/**
@@ -50,21 +60,33 @@ public class JiraIssueService {
 	 * @param request
 	 * @return
 	 */
-	@Cacheable(value = "default", key = "{#root.methodName, #request.issueKey}")
+	@Cacheable(value = "default", key = "#request.issueKey")
 	public JiraResultBean getIssue(IssueRequest request) {
 		logger.debug("cache miss - " + request.toString());
 		request.setRequestMethod(HttpMethod.GET);
-		return restRequestDAO.get(request);
+		JiraResultBean result = null;
+		try {
+			result = restRequestDAO.get(request);
+		} catch (Exception ex) {
+			System.err.println("CC");
+			throw new RestClientException("Unable to getIssue", ex);
+		}
+		return result;
 	}
 	
 	/**
 	 * insert message to the queue
 	 * @param request
+	 * @throws JMSException 
 	 */
-	public void createIssue(IssueRequest request) {
+	public void createIssue(IssueRequest request) throws JMSException {
 		logger.debug("create async issue");
 		request.setRequestMethod(HttpMethod.POST);
-		jmsRequestDAO.put(request);
+		try {
+			jmsRequestDAO.put(request);
+		} catch (Exception ex) {
+			throw new JMSException("JMS enqueue error - " + ex.getMessage());
+		}
 	}
 
 	/**
@@ -74,19 +96,32 @@ public class JiraIssueService {
 	public JiraResultBean syncCreateIssue(IssueRequest request) {
 		logger.debug("create sync issue");
 		request.setRequestMethod(HttpMethod.POST);
-		return restRequestDAO.post(request);
+		JiraResultBean result = null;
+		try {
+			result = restRequestDAO.post(request);
+		} catch (Exception ex) {
+			throw new RestClientException("Uable to create issue synchonously", ex);
+		}
+		return result;
 	}
 	
 	/**
 	 * invoke [PUT] /jira/rest/api/latest/issue
 	 * @param request
+	 * @key should be the same key with this.getIssue()
 	 * @return
 	 */
-	@CachePut(value = "default", key = "new String({#root.methodName, #request.issueKey})")
+	@CachePut(value = "default", key = "new String(#request.issueKey)")
 	public JiraResultBean updateIssue(IssueRequest request) {
 		logger.debug("update cache - " + request.toString());
 		request.setRequestMethod(HttpMethod.PUT);
-		return restRequestDAO.put(request);
+		JiraResultBean result = null;
+		try {
+			result = restRequestDAO.put(request);
+		} catch (Exception ex) {
+			throw new RestClientException("Unable to updateIssue", ex);
+		}
+		return result;
 	}
 	
 	/**
@@ -101,6 +136,7 @@ public class JiraIssueService {
 	public JiraResultBean searchIssue(SearchRequest request) throws JsonGenerationException, JsonMappingException, IOException {
 		logger.debug("cache miss - " + request.toString());
 		request.setRequestMethod(HttpMethod.POST);
+		//FIXME 
 		Map<String, Object> entityMap = new LinkedHashMap<String, Object>();
         
         entityMap.put("jql", request.getJql());
@@ -109,7 +145,13 @@ public class JiraIssueService {
         entityMap.put("fields", request.getFields());
         
         request.setPayload(new ObjectMapper().writeValueAsString(entityMap));
-        return restRequestDAO.post(request);
+        JiraResultBean result = null;
+        try {
+        	result = restRequestDAO.post(request);
+        } catch (Exception ex) {
+        	throw new RestClientException("Unable to searchIssue", ex);
+        }
+        return result;
 	}
 	
 	
