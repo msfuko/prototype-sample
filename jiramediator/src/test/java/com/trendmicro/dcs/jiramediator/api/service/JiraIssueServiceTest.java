@@ -84,7 +84,7 @@ public class JiraIssueServiceTest {
 		// init mockito annotations
 		MockitoAnnotations.initMocks(this);
 		
-		// this is the trickt to make @Injectmocks and @Autowired work. we need autowired to make @Cacheable work properly. 
+		// this is the trick for making @Injectmocks and @Autowired work. we need autowired to make @Cacheable work properly. 
 		JiraIssueService target = (JiraIssueService) unwrapProxy(jiraIssueService);
 		ReflectionTestUtils.setField(target, "restRequestDAO", restRequestDAO); 
 	}
@@ -110,15 +110,18 @@ public class JiraIssueServiceTest {
 		jiraIssueService.getIssue(request);
 		verify(restRequestDAO, times(1)).get(request);
 	
-		// TODO
-		IssueRequest request2 = new IssueRequest(httphost.toURI());
-		request2.setIssueKey("RFC-199");
-		result = jiraIssueService.getIssue(request2);
-		assertTrue(result == null);
+	}
+	
+	@Test(expected=RuntimeException.class) 
+	public void testGetValueException() {
+		IssueRequest request = new IssueRequest(httphost.toURI());
+		request.setIssueKey("RFC-199");
+		when(restRequestDAO.get(request)).thenThrow(RestClientException.class);
+		jiraIssueService.getIssue(request);
 	}
 	
 	@Test
-	public void createIssue() throws JsonGenerationException, JsonMappingException, IOException {
+	public void testCreateIssue() throws JsonGenerationException, JsonMappingException, IOException {
 		IssueRequest request = new IssueRequest(httphost.toURI());
 		request.setPayload(this.getTestIssueRequest());
 		ResponseEntity<String> response = new ResponseEntity<String>(
@@ -129,7 +132,7 @@ public class JiraIssueServiceTest {
 	}
 
 	@Test
-	public void updateIssue() throws JsonGenerationException, JsonMappingException, IOException {
+	public void testUpdateIssue() throws JsonGenerationException, JsonMappingException, IOException {
 		IssueRequest request = new IssueRequest(httphost.toURI());
 		request.setIssueKey("RFC-99");
 		request.setPayload(this.getTestUpdateIssueRequest());
@@ -138,8 +141,9 @@ public class JiraIssueServiceTest {
 		when(restRequestDAO.put(request)).thenReturn(this.responseWrapper(response)); 
 		JiraResultBean result = jiraIssueService.updateIssue(request);
 		assertEquals(result.getResponseContent(), this.getGetIssueResponse());
+		
+		// check whether CachePut work well so we could get the updated Issue
 		assertEquals(result.getResponseContent(), jiraIssueService.getIssue(request).getResponseContent());
-		//TODO
 	}
 
 	public static final Object unwrapProxy(Object bean) throws Exception {
@@ -197,13 +201,11 @@ public class JiraIssueServiceTest {
 	}
 	
 	private String getGetIssueResponse() {
-		return "NOO";
-		/*
 		return "{\"expand\":\"renderedFields,names,schema,transitions,operations,editmeta,changelog\",\"id\":\"197954\",\"se"
 				+ "lf\":\"https://dcstaskcentral.trendmicro.com/coc-alpha/rest/api/2/issue/197954\",\"key\":\"RFC-50\",\"fiel"
 				+ "ds\":{\"summary\":\"test summary \",\"issuetype\":{\"self\":\"https://dcstaskcentral.trendmicro.com/coc-alp"
 				+ "ha/rest/api/2/issuetype/35\",\"id\":\"35\",\"description\":\"RFC for data center infrastructure\",\"iconUr"
 				+ "l\":\"https://dcstaskcentral.trendmicro.com/coc-alpha/images/icons/genericissue.gif\",\"name\":\"RFC (Infra"
-				+ ")\",\"subtask\":false}}}";*/
+				+ ")\",\"subtask\":false}}}";
 	}
 }

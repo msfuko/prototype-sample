@@ -68,7 +68,6 @@ public class JiraIssueService {
 		try {
 			result = restRequestDAO.get(request);
 		} catch (Exception ex) {
-			System.err.println("CC");
 			throw new RestClientException("Unable to getIssue", ex);
 		}
 		return result;
