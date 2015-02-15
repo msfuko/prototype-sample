@@ -16,7 +16,6 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import org.springframework.test.annotation.Timed;
 import org.springframework.web.client.RestClientException;
 
 import com.trendmicro.dcs.jiramediator.api.dao.JmsRequestDAO;
