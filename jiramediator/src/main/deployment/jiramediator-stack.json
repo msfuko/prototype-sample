@@ -1,0 +1,225 @@
+{
+   "AWSTemplateFormatVersion":"2010-09-09",
+   "Description":"Main Stack",
+   "Parameters":{
+      "EC2InstanceClass":{
+         "Default":"m3.medium",
+         "Description":"EC2 instance class",
+         "Type":"String",
+         "AllowedValues":[
+            "t1.micro",
+            "m1.small",
+            "m3.medium",
+            "m3.large",
+            "m3.xlarge",
+            "m3.2xlarge",
+            "c1.medium",
+            "c1.xlarge"
+         ],
+         "ConstraintDescription":"EC2InstanceClass must select a valid EC2 instance type."
+      },
+      "SystemName":{
+         "Default":"Jira Mediator Test",
+         "Description":"System Name",
+         "Type":"String"
+      },
+      "KeyPair":{
+         "Default":"omelet_useast",
+         "Description":"Key Pair Name for the instances",
+         "Type":"String"
+      },
+      "AppURL":{
+         "Default":"https://s3.amazonaws.com/chloe-test/deployment/staging/ROOT.tar.gz",
+         "Description":"path of ROOT.tar.gz",
+         "Type":"String"
+      },
+      "AWSAccessKey":{
+         "Description":"AWS Access Key",
+         "Type":"String"
+      },
+      "AWSSecretKey":{
+         "Description":"AWS Secret Key",
+         "NoEcho":"true",
+         "Type":"String"
+      },
+      "IAMRole":{
+         "Description":"IAM Role for EC2",
+         "Type":"String"
+      },
+      "VPC":{
+         "Description":"vpc id",
+         "Type":"String"
+      },
+      "SubnetPublicA":{
+         "Description":"one subnet in VPC",
+         "Type":"String"
+      },
+      "SubnetPublicB":{
+         "Description":"secode subnet in VPC",
+         "Type":"String"
+      },
+      "SSLCertificateId":{
+         "Default":"arn:aws:iam::479754692175:server-certificate/JIRAevaluation",
+         "Description":"SSL certificate of ELB",
+         "Type":"String"
+      },
+      "S3LoggingBucketName":{
+         "Description":"Access Logging Bucket",
+         "Type":"String"
+      },
+      "AppTag":{
+         "Default":"jiramediator-staging",
+         "Description":"Opsworks Stack name",
+         "Type":"String"
+      },
+      "JiraUsername":{
+         "Description":"Jira rest username",
+         "Type":"String"
+      },
+      "JiraPassword":{
+         "Description":"Jira rest Password",
+         "NoEcho":"true",
+         "Type":"String"
+      }
+   },
+   "Resources":{
+      "SecurityGroupStack":{
+         "Type":"AWS::CloudFormation::Stack",
+         "Properties":{
+            "TemplateURL":"https://s3.amazonaws.com/chloe-test/deployment/cloudformation/jiramediator-securitygroup.json",
+            "Parameters":{
+               "SystemName":{
+                  "Ref":"SystemName"
+               },
+               "VPC":{
+                  "Ref":"VPC"
+               }
+            }
+         }
+      },
+      "ELBStack":{
+         "Type":"AWS::CloudFormation::Stack",
+         "DependsOn":[
+            "SecurityGroupStack"
+         ],
+         "Properties":{
+            "TemplateURL":"https://s3.amazonaws.com/chloe-test/deployment/cloudformation/jiramediator-elb.json",
+            "Parameters":{
+               "SSLCertificateId":{
+                  "Ref":"SSLCertificateId"
+               },
+               "S3LoggingBucketName":{
+                  "Ref":"S3LoggingBucketName"
+               },
+               "SubnetPublicA":{
+                  "Ref":"SubnetPublicA"
+               },
+               "SubnetPublicB":{
+                  "Ref":"SubnetPublicB"
+               },
+               "SecurityGroupId":{
+                  "Fn::GetAtt":[
+                     "SecurityGroupStack",
+                     "Outputs.SecurityGroupELBId"
+                  ]
+               }
+            }
+         }
+      },
+      "OpsWorksStack":{
+         "Type":"AWS::CloudFormation::Stack",
+         "DependsOn":[
+            "SecurityGroupStack",
+            "ELBStack"
+         ],
+         "Properties":{
+            "TemplateURL":"https://s3.amazonaws.com/chloe-test/deployment/cloudformation/jiramediator-opsworks.json",
+            "Parameters":{
+               "SystemName":{
+                  "Ref":"SystemName"
+               },
+               "AppTag":{
+                  "Ref":"AppTag"
+               },
+               "KeyPair":{
+                  "Ref":"KeyPair"
+               },
+               "AppURL":{
+                  "Ref":"AppURL"
+               },
+               "JiraUsername":{
+                  "Ref":"JiraUsername"
+               },
+               "JiraPassword":{
+                  "Ref":"JiraPassword"
+               },
+               "AWSAccessKey":{
+                  "Ref":"AWSAccessKey"
+               },
+               "AWSSecretKey":{
+                  "Ref":"AWSSecretKey"
+               },
+               "IAMRole":{
+                  "Ref":"IAMRole"
+               },
+               "VPC":{
+                  "Ref":"VPC"
+               },
+               "SubnetPublicA":{
+                  "Ref":"SubnetPublicA"
+               },
+               "SecurityGroupAppId":{
+                  "Fn::GetAtt":[
+                     "SecurityGroupStack",
+                     "Outputs.SecurityGroupAppId"
+                  ]
+               },
+               "ElasticLoadBalancerName":{
+                  "Fn::GetAtt":[
+                     "ELBStack",
+                     "Outputs.ElasticLoadBalancerName"
+                  ]
+               }
+            }
+         }
+      },
+      "InstanceStack":{
+         "Type":"AWS::CloudFormation::Stack",
+         "DependsOn":"OpsWorksStack",
+         "Properties":{
+            "TemplateURL":"https://s3.amazonaws.com/chloe-test/deployment/cloudformation/jiramediator-instance.json",
+            "Parameters":{
+               "EC2InstanceClass":{
+                  "Ref":"EC2InstanceClass"
+               },
+               "CSStack":{
+                  "Fn::GetAtt":[
+                     "OpsWorksStack",
+                     "Outputs.CSStack"
+                  ]
+               },
+               "AppLayer":{
+                  "Fn::GetAtt":[
+                     "OpsWorksStack",
+                     "Outputs.AppLayer"
+                  ]
+               },
+               "KeyPair":{
+                  "Ref":"KeyPair"
+               }
+            }
+         }
+      }
+   },
+   "Outputs":{
+      "FQDN":{
+         "Description":"ELB DNS Name",
+         "Value":{
+            "Fn::GetAtt":[
+               "ELBStack",
+               "Outputs.ElasticLoadBalancerDNSName"
+            ]
+         }
+      }
+   }
+}

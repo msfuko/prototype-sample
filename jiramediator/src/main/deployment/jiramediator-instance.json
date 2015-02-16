@@ -1,0 +1,55 @@
+{
+   "AWSTemplateFormatVersion":"2010-09-09",
+   "Description":"Opsworks Instances",
+   "Parameters":{
+      "CSStack":{
+         "Description":"OpsWorks Stack Id",
+         "Type":"String"
+      },
+      "AppLayer":{
+         "Description":"OpsWorks App layer Id",
+         "Type":"String"
+      },
+      "EC2InstanceClass":{
+         "Default":"m3.medium",
+         "Description":"EC2 instance class",
+         "Type":"String",
+         "AllowedValues":[
+            "t1.micro",
+            "m1.small",
+            "m3.medium",
+            "m3.large",
+            "m3.xlarge",
+            "m3.2xlarge",
+            "c1.medium",
+            "c1.xlarge"
+         ],
+         "ConstraintDescription":"EC2InstanceClass must select a valid EC2 instance type."
+      },
+      "KeyPair":{
+         "Description":"Key Pair Name for the instances",
+         "Type":"String"
+      }
+   },
+   "Resources":{
+      "myAppInstance1":{
+         "Type":"AWS::OpsWorks::Instance",
+         "Properties":{
+            "StackId":{
+               "Ref":"CSStack"
+            },
+            "LayerIds":[
+               {
+                  "Ref":"AppLayer"
+               }
+            ],
+            "InstanceType":{
+               "Ref":"EC2InstanceClass"
+            },
+            "SshKeyName":{
+               "Ref":"KeyPair"
+            }
+         }
+      }
+   }
+}
