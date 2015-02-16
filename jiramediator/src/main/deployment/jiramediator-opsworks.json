@@ -91,7 +91,8 @@
             "UseCustomCookbooks":"true",
             "CustomCookbooksSource":{
                "Type":"git",
-               "Url":"https://github.com/msfuko/opsworks-extended-cookbooks.git"
+               "Url":"https://github.com/msfuko/opsworks-extended-cookbooks.git",
+               "Revision":"prototype"
             },
             "ConfigurationManager":{
                "Name":"Chef",
