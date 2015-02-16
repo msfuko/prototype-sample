@@ -80,6 +80,29 @@
          "Description":"Jira rest Password",
          "NoEcho":"true",
          "Type":"String"
+      },
+      "CacheNodeType":{
+         "Default":"cache.m1.small",
+         "Description":"The compute and memory capacity of the nodes in the Cache Cluster",
+         "Type":"String",
+         "AllowedValues":[
+            "cache.m1.small",
+            "cache.m1.large",
+            "cache.m1.xlarge",
+            "cache.m2.xlarge",
+            "cache.m2.2xlarge",
+            "cache.m2.4xlarge",
+            "cache.c1.xlarge"
+         ],
+         "ConstraintDescription":"must select a valid Cache Node type."
+      },
+      "NumberOfCacheNodes":{
+         "Default":"1",
+         "Description":"The number of Cache Nodes the Cache Cluster should have",
+         "Type":"Number",
+         "MinValue":"1",
+         "MaxValue":"10",
+         "ConstraintDescription":"must be between 5 and 10."
       }
    },
    "Resources":{
@@ -206,6 +229,40 @@
                },
                "KeyPair":{
                   "Ref":"KeyPair"
+               }
+            }
+         }
+      },
+      "CacheStack":{
+         "Type":"AWS::CloudFormation::Stack",
+         "DependsOn":[
+            "OpsWorksStack",
+            "InstanceStack",
+            "SecurityGroupStack"
+         ],
+         "Properties":{
+            "TemplateURL":"https://s3.amazonaws.com/chloe-test/deployment/cloudformation/jiramediator-ecache.json",
+            "Parameters":{
+               "CacheNodeType":{
+                  "Ref":"CacheNodeType"
+               },
+               "NumberOfCacheNodes":{
+                  "Ref":"NumberOfCacheNodes"
+               },
+               "AppTag":{
+                  "Ref":"AppTag"
+               },
+               "SubnetPublicA":{
+                  "Ref":"SubnetPublicA"
+               },
+               "SubnetPublicB":{
+                  "Ref":"SubnetPublicB"
+               },
+               "EcacheSecurityGroup":{
+                  "Fn::GetAtt":[
+                     "SecurityGroupStack",
+                     "Outputs.SecurityGroupEcacheId"
+                  ]
                }
             }
          }

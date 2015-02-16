@@ -42,7 +42,15 @@
                {
                   "Key":"Name",
                   "Value":{
-                     "Ref":"SystemName"
+                     "Fn::Join":[
+                        "-",
+                        [
+                           {
+                              "Ref":"SystemName"
+                           },
+                           "App"
+                        ]
+                     ]
                   }
                }
             ]
@@ -81,7 +89,56 @@
                {
                   "Key":"Name",
                   "Value":{
-                     "Ref":"SystemName"
+                     "Fn::Join":[
+                        "-",
+                        [
+                           {
+                              "Ref":"SystemName"
+                           },
+                           "Elb"
+                        ]
+                     ]
+                  }
+               }
+            ]
+         }
+      },
+      "SecurityGroupEcache":{
+         "Type":"AWS::EC2::SecurityGroup",
+         "Properties":{
+            "GroupDescription":"Elasticache Security Group",
+            "SecurityGroupIngress":[
+               {
+                  "IpProtocol":"tcp",
+                  "FromPort":"11211",
+                  "ToPort":"11211",
+                  "SourceSecurityGroupId":{
+                     "Ref":"SecurityGroupApp"
+                  }
+               }
+            ],
+            "VpcId":{
+               "Ref":"VPC"
+            },
+            "Tags":[
+               {
+                  "Key":"Application",
+                  "Value":{
+                     "Ref":"AWS::StackId"
+                  }
+               },
+               {
+                  "Key":"Name",
+                  "Value":{
+                     "Fn::Join":[
+                        "-",
+                        [
+                           {
+                              "Ref":"SystemName"
+                           },
+                           "Elasticache"
+                        ]
+                     ]
                   }
                }
             ]
@@ -101,6 +158,14 @@
          "Value":{
             "Fn::GetAtt":[
                "SecurityGroupELB",
+               "GroupId"
+            ]
+         }
+      },
+      "SecurityGroupEcacheId":{
+         "Value":{
+            "Fn::GetAtt":[
+               "SecurityGroupEcache",
                "GroupId"
             ]
          }

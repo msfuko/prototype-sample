@@ -1,0 +1,106 @@
+{
+   "AWSTemplateFormatVersion":"2010-09-09",
+   "Description":"Main Stack",
+   "Parameters":{
+      "CacheNodeType":{
+         "Default":"cache.m1.small",
+         "Description":"The compute and memory capacity of the nodes in the Cache Cluster",
+         "Type":"String",
+         "AllowedValues":[
+            "cache.m1.small",
+            "cache.m1.large",
+            "cache.m1.xlarge",
+            "cache.m2.xlarge",
+            "cache.m2.2xlarge",
+            "cache.m2.4xlarge",
+            "cache.c1.xlarge"
+         ],
+         "ConstraintDescription":"must select a valid Cache Node type."
+      },
+      "NumberOfCacheNodes":{
+         "Default":"1",
+         "Description":"The number of Cache Nodes the Cache Cluster should have",
+         "Type":"Number",
+         "MinValue":"1",
+         "MaxValue":"10",
+         "ConstraintDescription":"must be between 5 and 10."
+      },
+      "AppTag":{
+         "Default":"jiramediator-staging",
+         "Description":"Opsworks Stack name",
+         "Type":"String"
+      },
+      "EcacheSecurityGroup":{
+         "Description":"Web server Sercurity group id",
+         "Type":"String"
+      },
+      "SubnetPublicA":{
+         "Description":"one subnet in VPC",
+         "Type":"String"
+      },
+      "SubnetPublicB":{
+         "Description":"secode subnet in VPC",
+         "Type":"String"
+      }
+   },
+   "Resources":{
+      "CacheCluster":{
+         "Type":"AWS::ElastiCache::CacheCluster",
+         "Properties":{
+            "CacheNodeType":{
+               "Ref":"CacheNodeType"
+            },
+            "VpcSecurityGroupIds":[
+               {
+                  "Ref":"CacheSecurityGroup"
+               }
+            ],
+            "Engine":"memcached",
+            "NumCacheNodes":{
+               "Ref":"NumberOfCacheNodes"
+            },
+            "CacheSubnetGroupName":{
+               "Ref":"CacheSubnetGroup"
+            },
+            "ClusterName":{
+               "Ref":"AppTag"
+            },
+            "VpcSecurityGroupIds": [{"Ref":"EcacheSecurityGroup"}]
+         }
+      },
+      "CacheSubnetGroup":{
+         "Type":"AWS::ElastiCache::SubnetGroup",
+         "Properties":{
+            "Description" : "Cache Subnet Group",
+            "SubnetIds":[
+               {
+                  "Ref":"SubnetPublicA"
+               },
+               {
+                  "Ref":"SubnetPublicB"
+               }
+            ]
+         }
+      }
+   },
+   "Outputs":{
+      "CacheEndpoint":{
+         "Description":"ElasticCache Endpoint",
+         "Value":{
+            "Fn::GetAtt":[
+               "CacheCluster",
+               "ConfigurationEndpoint.Address"
+            ]
+         }
+      },
+      "CachePort":{
+         "Description":"ElasticCache Port",
+         "Value":{
+            "Fn::GetAtt":[
+               "CacheCluster",
+               "ConfigurationEndpoint.Port"
+            ]
+         }
+      }
+   }
+}

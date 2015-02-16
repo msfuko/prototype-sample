@@ -41,7 +41,7 @@ public class JiraIssueService {
 	 * @param request
 	 * @return
 	 */
-	@Cacheable(value = "default", key = "{#root.methodName, #request.projectKey}")
+	@Cacheable(value = "default", key = "T(java.util.Objects).hash(#root.methodName, #request.projectKey)")
 	public JiraResultBean getProjectInfo(ProjectInfoRequest request) {
 		logger.debug("cache miss - " + request.toString());
 		request.setRequestMethod(HttpMethod.GET);
@@ -130,7 +130,7 @@ public class JiraIssueService {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	@Cacheable(value = "default", key = "{#root.methodName, #request.jql, #request.startAt, #request.maxResults, #request.fields}")
+	@Cacheable(value = "default", key = "T(java.util.Objects).hash(#root.methodName, #request.jql, #request.startAt, #request.maxResults, #request.fields)")
 	public JiraResultBean searchIssue(SearchRequest request) throws JsonGenerationException, JsonMappingException, IOException {
 		logger.debug("cache miss - " + request.toString());
 		request.setRequestMethod(HttpMethod.POST);

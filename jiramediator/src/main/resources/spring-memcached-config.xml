@@ -48,7 +48,8 @@
     </property>
     <property name="addressProvider">
       <bean class="com.google.code.ssm.config.DefaultAddressProvider">
-        <property name="address" value="cm-test.houfn0.cfg.use1.cache.amazonaws.com:11211" />
+      	<!-- FIXME: using env variable to config it! -->
+        <property name="address" value="jiramediator-staging.houfn0.cfg.use1.cache.amazonaws.com:11211" />
       </bean>
     </property>
     
