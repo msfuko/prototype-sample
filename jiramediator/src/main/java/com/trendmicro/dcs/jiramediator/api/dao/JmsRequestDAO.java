@@ -34,7 +34,7 @@ public class JmsRequestDAO implements MessageListener, BaseRequestDAO {
 	
 	
 	@Override
-	public Object put(AbstractBaseRequest request) {
+	public Object put(final AbstractBaseRequest request) {
 		JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
 		jmsTemplate.send(jmsRequestQueueName, new MessageCreator() {
             public javax.jms.Message createMessage(Session session) throws JMSException {
