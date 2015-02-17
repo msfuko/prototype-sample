@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.jms.JMSException;
 
 import org.apache.commons.logging.Log;
@@ -14,6 +15,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -41,10 +43,7 @@ public class JiraIssueService {
 	 * @param request
 	 * @return
 	 */
-	@Cacheable(value = "default", key = "T(java.util.Objects).hash(#root.methodName, #request.projectKey)")
 	public JiraResultBean getProjectInfo(ProjectInfoRequest request) {
-		logger.debug("cache miss - " + request.toString());
-		request.setRequestMethod(HttpMethod.GET);
 		JiraResultBean result = null;
 		try {
 			result = restRequestDAO.get(request);
@@ -59,10 +58,7 @@ public class JiraIssueService {
 	 * @param request
 	 * @return
 	 */
-	@Cacheable(value = "default", key = "#request.issueKey")
 	public JiraResultBean getIssue(IssueRequest request) {
-		logger.debug("cache miss - " + request.toString());
-		request.setRequestMethod(HttpMethod.GET);
 		JiraResultBean result = null;
 		try {
 			result = restRequestDAO.get(request);
@@ -79,7 +75,6 @@ public class JiraIssueService {
 	 */
 	public void createIssue(IssueRequest request) throws JMSException {
 		logger.debug("create async issue");
-		request.setRequestMethod(HttpMethod.POST);
 		try {
 			jmsRequestDAO.put(request);
 		} catch (Exception ex) {
@@ -93,7 +88,6 @@ public class JiraIssueService {
 	 */
 	public JiraResultBean syncCreateIssue(IssueRequest request) {
 		logger.debug("create sync issue");
-		request.setRequestMethod(HttpMethod.POST);
 		JiraResultBean result = null;
 		try {
 			result = restRequestDAO.post(request);
@@ -109,10 +103,8 @@ public class JiraIssueService {
 	 * @key should be the same key with this.getIssue()
 	 * @return
 	 */
-	@CachePut(value = "default", key = "new String(#request.issueKey)")
+	//FIXME
 	public JiraResultBean updateIssue(IssueRequest request) {
-		logger.debug("update cache - " + request.toString());
-		request.setRequestMethod(HttpMethod.PUT);
 		JiraResultBean result = null;
 		try {
 			result = restRequestDAO.put(request);
@@ -130,10 +122,7 @@ public class JiraIssueService {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	@Cacheable(value = "default", key = "T(java.util.Objects).hash(#root.methodName, #request.jql, #request.startAt, #request.maxResults, #request.fields)")
 	public JiraResultBean searchIssue(SearchRequest request) throws JsonGenerationException, JsonMappingException, IOException {
-		logger.debug("cache miss - " + request.toString());
-		request.setRequestMethod(HttpMethod.POST);
 		//FIXME 
 		Map<String, Object> entityMap = new LinkedHashMap<String, Object>();
         

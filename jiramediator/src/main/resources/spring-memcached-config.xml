@@ -9,8 +9,12 @@
            http://www.springframework.org/schema/cache 
            http://www.springframework.org/schema/cache/spring-cache-3.1.xsd">
 
-  <cache:annotation-driven/>
-
+ <cache:annotation-driven proxy-target-class="true"/>
+ <!--  
+ <cache:annotation-driven/>
+ <cache:annotation-driven key-generator="cacheKeyGenerator" />
+ <bean id="cacheKeyGenerator" class="com.trendmicro.dcs.jiramediator.api.utils.CacheKeyGenerator" />
+ -->
  <beans profile="test">
      <bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
         <property name="caches">

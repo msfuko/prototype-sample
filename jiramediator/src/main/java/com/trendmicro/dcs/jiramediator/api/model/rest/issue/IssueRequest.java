@@ -11,6 +11,7 @@ public class IssueRequest extends AbstractBaseRequest {
 	 */
 	private static final long serialVersionUID = 6410042592008356683L;
 
+	/*
 	private String issueKey;
 	
 	public String getIssueKey() {
@@ -20,7 +21,7 @@ public class IssueRequest extends AbstractBaseRequest {
 	public void setIssueKey(String issueKey) {
 		this.issueKey = issueKey;
 	}
-
+	 */
 	public IssueRequest(String httpHost) {
 		super(httpHost);
 	}
@@ -38,7 +39,7 @@ public class IssueRequest extends AbstractBaseRequest {
 			case DELETE:
 				requestUri = UriComponentsBuilder.fromUriString(getHttpHost())
 					.path("/issue/{issueIdOrKey}").build()
-					.expand(getIssueKey()).toUri();
+					.expand(getKey()).toUri();
 				break;
 			default:
 				throw new UnsupportedOperationException();

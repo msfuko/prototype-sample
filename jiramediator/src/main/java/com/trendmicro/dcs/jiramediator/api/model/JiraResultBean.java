@@ -13,9 +13,9 @@ public class JiraResultBean implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	//private int responseCode;
 	private HttpStatus responseCode;
 	private Object responseContent;
+	//private int responseCode;
 	//private String message;
 
 	public HttpStatus getResponseCode() {

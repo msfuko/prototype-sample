@@ -26,7 +26,7 @@
     		<constructor-arg value="username" />
     	</bean>
     	<bean id="password" class="java.lang.String">
-    		<constructor-arg value="password" />
+			<constructor-arg value="password" />
     	</bean>
     	<bean id="httphost" class="org.apache.http.HttpHost">
     		<constructor-arg value="dcs-alpha-ops.sjdc/coc-alpha/rest/api/latest"/>  

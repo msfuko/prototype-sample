@@ -96,7 +96,7 @@ public class JiraIssueServiceITest {
 	@Test
 	public void testGetIssue() {
 		IssueRequest request = new IssueRequest(httphost.toURI());
-		request.setIssueKey("RFC-100");
+		request.setKey("RFC-100");
 		JiraResultBean result = jiraIssueService.getIssue(request);
 		assertEquals(HttpStatus.OK, result.getResponseCode());
 	}
@@ -104,7 +104,7 @@ public class JiraIssueServiceITest {
 	@Test
 	public void testUpdateIssue() throws JsonGenerationException, JsonMappingException, IOException {
 		IssueRequest request = new IssueRequest(httphost.toURI());
-		request.setIssueKey("RFC-189");
+		request.setKey("RFC-189");
 		request.setPayload(getTestUpdateIssueRequest());
 		JiraResultBean result = jiraIssueService.updateIssue(request);
 		assertEquals(HttpStatus.OK, result.getResponseCode());

@@ -10,6 +10,7 @@ import javax.jms.Session;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
@@ -35,6 +36,7 @@ public class JmsRequestDAO implements MessageListener, BaseRequestDAO {
 	
 	@Override
 	public Object put(final AbstractBaseRequest request) {
+		request.setRequestMethod(HttpMethod.POST);
 		JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
 		jmsTemplate.send(jmsRequestQueueName, new MessageCreator() {
             public javax.jms.Message createMessage(Session session) throws JMSException {

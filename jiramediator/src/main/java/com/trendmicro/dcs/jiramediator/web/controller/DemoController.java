@@ -47,7 +47,7 @@ public class DemoController {
 	public String testGetRequest() {
 		logger.info("test is called");
 		ProjectInfoRequest request = new ProjectInfoRequest(httphost.toURI());
-		request.setProjectKey("RFC");
+		request.setKey("RFC");
 		JiraResultBean result = jiraIssueService.getProjectInfo(request);
 		return result.getResponseContent().toString();
 	}
@@ -58,7 +58,7 @@ public class DemoController {
 		logger.info("test is called");
 		IssueRequest request = new IssueRequest(httphost.toURI());
 		request.setPayload(this.getSampleIssueRequest());
-		request.setIssueKey("TEST-1");
+		request.setKey("TEST-1");
 		jiraIssueService.createIssue(request);
 		return "Request sent";
 	}
@@ -69,7 +69,7 @@ public class DemoController {
 		logger.info("test is called");
 		IssueRequest request = new IssueRequest(httphost.toURI());
 		request.setPayload(this.getUpdateIssueRequest());
-		request.setIssueKey("RFC-100");
+		request.setKey("RFC-100");
 		jiraIssueService.updateIssue(request);
 		return "Request sent";
 	}
